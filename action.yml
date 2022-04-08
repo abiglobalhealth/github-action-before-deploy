@@ -7,7 +7,7 @@ inputs:
 outputs:
   deployment_id:
     description: current deployment id
-    value: ${{steps.create_deployment.outputs.result}}}
+    value: ${{steps.create_deployment.outputs.result}}
 runs:
   using: composite
   steps:
