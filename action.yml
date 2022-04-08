@@ -5,7 +5,9 @@ inputs:
   environment: {description: current environment to deploy to, required: true}
   ref: {description: current commit sha ref, required: true}
 outputs:
-  deployment_id: {description: current deployment id, value: ${{steps.create_deployment.outputs.result}}}
+  deployment_id:
+    description: current deployment id
+    value: ${{steps.create_deployment.outputs.result}}}
 runs:
   using: composite
   steps:
