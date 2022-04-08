@@ -1,0 +1,36 @@
+name: before-deploy
+description: Prepares github context for deployment
+branding: {color: blue, icon: box}
+inputs:
+  environment: {description: current environment to deploy to, required: true}
+  ref: {description: current commit sha ref, required: true}
+outputs:
+  deployment_id: {description: current deployment id, value: ${{steps.create_deployment.outputs.result}}}
+runs:
+  using: composite
+  steps:
+    - name: link deployment to sha ref
+      id: create_deployment
+      uses: actions/github-script@v6
+      env:
+        ref: ${{inputs.ref}}
+        environment: ${{inputs.environment}}
+      with:
+        result-encoding: string
+        # language=js
+        script: |
+          const {owner, repo} = context.issue
+          const {ref, environment} = process.env
+          return (await github.rest.repos.createDeployment({owner, repo, ref, environment, auto_merge: false})).data.id
+
+    - name: set deployment status to in_progress
+      uses: actions/github-script@v6
+      env:
+        environment: ${{inputs.environment}}
+        deployment_id: ${{steps.create_deployment.outputs.result}}
+      with:
+        # language=js
+        script: |
+          const {owner, repo} = context.issue
+          const {deployment_id, environment} = process.env
+          github.rest.repos.createDeploymentStatus({owner, repo, deployment_id, environment, state: 'in_progress'})
